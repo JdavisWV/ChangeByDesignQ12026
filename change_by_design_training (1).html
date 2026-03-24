@@ -2,569 +2,178 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Change By Design — WorldVue Leadership Training</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Change By Design — WorldVue</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
-:root{--primary:#0149cf;--primary-d:#0138a0;--navy:#032254;--navy-l:#0a3270;--orange:#ff8000;--orange-d:#cc6600;--sky:#47c5fa;--white:#ffffff;--off:#f4f6fb;--text:#0d1b35;--muted:#5a6a85;--border:#d4dce8;--border-d:#0f3570;--c1:#0149cf;--c2:#ff8000;--c3:#47c5fa;--c4:#032254}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Barlow',sans-serif;background:var(--navy);color:var(--text);height:100vh;overflow:hidden;user-select:none}
-.slide{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:56px 72px;opacity:0;transition:opacity .3s ease}
-.slide.light{background:var(--white)}.slide.dark{background:var(--navy)}
-.slide.active{display:flex}.slide.visible{opacity:1}
-.slide.scroll{justify-content:flex-start;overflow-y:auto;padding-bottom:88px}
-.slide.scroll::-webkit-scrollbar{width:5px}.slide.scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-#nav{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:14px;background:var(--navy);border:1px solid var(--border-d);border-radius:50px;padding:8px 18px;z-index:200;box-shadow:0 4px 24px rgba(0,0,0,.35)}
-.nav-btn{background:none;border:none;color:rgba(255,255,255,.45);cursor:pointer;font-size:16px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:color .2s,background .2s}
-.nav-btn:hover{color:var(--sky);background:rgba(71,197,250,.1)}.nav-btn:disabled{opacity:.25;cursor:default}
-#slide-counter{font-size:11px;color:rgba(255,255,255,.4);min-width:60px;text-align:center;letter-spacing:.1em;text-transform:uppercase}
-#slide-label{position:fixed;top:20px;left:28px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3);z-index:100;font-weight:600;transition:color .3s}
-body.light-active #slide-label{color:var(--muted)}
-.label{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:700}
-.label.blue{color:var(--primary)}.label.orange{color:var(--orange)}.label.sky{color:var(--sky)}.label.white{color:rgba(255,255,255,.45)}
-.rule{width:40px;height:3px;margin:14px 0}
-.rule.blue{background:var(--primary)}.rule.orange{background:var(--orange)}.rule.sky{background:var(--sky)}
-h1{font-family:'Barlow Condensed',sans-serif;font-size:clamp(2.6rem,4.5vw,4rem);font-weight:800;line-height:1.05}
-h1.light{color:var(--white)}
-h2{font-family:'Barlow Condensed',sans-serif;font-size:clamp(1.8rem,3vw,2.6rem);font-weight:700;line-height:1.1}
-h2.dark{color:var(--text)}h2.light{color:var(--white)}
-p.body{font-size:1rem;line-height:1.65;color:var(--muted)}
-p.body-light{font-size:1rem;line-height:1.65;color:rgba(255,255,255,.6);font-weight:300}
-#s1{background:var(--navy);overflow:hidden}
-.cover-stripe{position:absolute;top:0;right:0;width:42%;height:100%;background:linear-gradient(160deg,var(--primary) 0%,var(--navy-l) 100%);clip-path:polygon(18% 0,100% 0,100% 100%,0% 100%)}
-.cover-dot{position:absolute;top:-80px;right:-80px;width:320px;height:320px;border-radius:50%;background:var(--orange);opacity:.12}
-.wv-badge{display:inline-block;background:var(--orange);color:var(--white);font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:5px 14px;border-radius:2px;margin-bottom:20px}
-.tradeoff-list{list-style:none;margin-top:28px;width:100%;max-width:680px}
-.tradeoff-list li{display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border);font-size:1.05rem}
-.tradeoff-list li:last-child{border:none}
-.side-a{color:var(--text);font-weight:600;flex:1;text-align:right;padding-right:18px}
-.vs-badge{background:var(--primary);color:var(--white);font-size:.65rem;font-weight:700;letter-spacing:.12em;padding:3px 8px;border-radius:2px;text-transform:uppercase;flex-shrink:0}
-.side-b{color:var(--muted);flex:1;padding-left:18px}
-.reflection-box{border-left:4px solid var(--orange);background:var(--off);border-radius:0 8px 8px 0;padding:24px 28px;max-width:680px;margin-top:28px}
-.reflection-box p{font-size:1.1rem;font-style:italic;color:var(--text);line-height:1.65}
-.reflection-box .sub{margin-top:12px;font-size:.9rem;color:var(--muted);font-style:normal}
-.drift-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;width:100%;max-width:960px;margin-top:24px}
-.drift-box{background:var(--off);border:1px solid var(--border);border-radius:10px;padding:22px}
-.drift-box h4{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:12px}
-.drift-box ul{list-style:none}
-.drift-box li{padding:6px 0;font-size:.91rem;color:var(--muted);border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:8px}
-.drift-box li:last-child{border:none}
-.drift-box li::before{content:'—';color:var(--primary);flex-shrink:0}
-.drift-def{font-size:1rem;color:var(--text);line-height:1.6;margin-top:6px;max-width:700px}
-.drift-tag{display:inline-flex;align-items:center;border-radius:4px;padding:5px 12px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
-.dt-blue{background:rgba(1,73,207,.1);color:var(--primary)}.dt-navy{background:rgba(3,34,84,.08);color:var(--navy)}.dt-orange{background:rgba(255,128,0,.12);color:var(--orange-d)}
-#s-protect{background:var(--navy);overflow:hidden}
-.protect-layout{display:grid;grid-template-columns:1fr 1fr;gap:2px;width:100%;max-width:1060px;margin-top:28px;border-radius:12px;overflow:hidden;border:1px solid var(--border-d)}
-.protect-col{display:flex;flex-direction:column}
-.protect-col-hdr{padding:16px 22px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
-.col-green .protect-col-hdr{background:rgba(0,180,80,.15);color:#2ecc71}.col-red .protect-col-hdr{background:rgba(255,80,50,.12);color:#ff6b4a}
-.protect-items{flex:1;min-height:240px;padding:16px 20px;background:rgba(255,255,255,.03);display:flex;flex-direction:column;gap:8px}
-.protect-item{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:10px 14px;font-size:.92rem;color:var(--white);display:flex;align-items:flex-start;justify-content:space-between;gap:8px;animation:itemIn .25s ease}
-.col-green .protect-item{border-color:rgba(46,204,113,.25)}.col-red .protect-item{border-color:rgba(255,107,74,.2)}
-@keyframes itemIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.del-btn{background:none;border:none;color:rgba(255,255,255,.25);cursor:pointer;font-size:12px;padding:0 2px;transition:color .2s;flex-shrink:0;margin-top:2px}
-.del-btn:hover{color:rgba(255,255,255,.7)}
-.protect-input-wrap{border-top:1px solid var(--border-d);padding:12px 16px;display:flex;gap:8px;background:rgba(0,0,0,.2)}
-.protect-input{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:var(--white);font-size:.88rem;padding:8px 12px;font-family:'Barlow',sans-serif;outline:none;transition:border-color .2s}
-.protect-input:focus{border-color:rgba(255,255,255,.35)}.protect-input::placeholder{color:rgba(255,255,255,.3)}
-.protect-add-btn{background:none;border:1px solid rgba(255,255,255,.2);border-radius:6px;color:rgba(255,255,255,.5);padding:8px 14px;cursor:pointer;font-size:.82rem;font-family:'Barlow',sans-serif;font-weight:600;transition:background .2s,color .2s,border-color .2s;white-space:nowrap}
-.col-green .protect-add-btn:hover{background:rgba(46,204,113,.15);border-color:rgba(46,204,113,.4);color:#2ecc71}
-.col-red .protect-add-btn:hover{background:rgba(255,107,74,.12);border-color:rgba(255,107,74,.35);color:#ff6b4a}
-.protect-empty{font-size:.85rem;color:rgba(255,255,255,.25);font-style:italic;text-align:center;padding:20px}
-#s-goals{background:var(--white)}
-.goals-layout{display:grid;grid-template-columns:400px 1fr;gap:24px;width:100%;max-width:1060px;margin-top:24px;align-items:start}
-.goals-panel{background:var(--off);border:1px solid var(--border);border-radius:12px;padding:22px;overflow-y:auto;max-height:56vh}
-.goals-panel h4{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:14px}
-.two-input-row{display:grid;grid-template-columns:1fr 1.6fr;gap:8px;margin-bottom:10px}
-.two-input-row input{background:var(--white);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.85rem;padding:8px 10px;font-family:'Barlow',sans-serif;outline:none;transition:border-color .2s}
-.two-input-row input:focus{border-color:var(--primary)}
-.goal-confirm-btn{background:var(--primary);color:var(--white);border:none;border-radius:6px;padding:8px 16px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em;transition:background .2s;margin-bottom:12px}
-.goal-item{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;animation:itemIn .2s ease}
-.goal-name{font-family:'Barlow Condensed',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--primary);min-width:90px;padding-top:1px}
-.goal-text{font-size:.88rem;color:var(--text);line-height:1.45;flex:1}
-.goal-del{background:none;border:none;color:var(--border);cursor:pointer;font-size:12px;transition:color .2s;flex-shrink:0;margin-top:2px}
-.goal-del:hover{color:#e05555}
-.goals-empty{font-size:.85rem;color:var(--muted);font-style:italic;text-align:center;padding:20px 0}
-.add-row-btn{width:100%;background:none;border:1px dashed var(--border);border-radius:8px;color:var(--muted);padding:10px;cursor:pointer;font-size:.85rem;font-family:'Barlow',sans-serif;margin-top:4px;transition:color .2s,border-color .2s,background .2s;display:flex;align-items:center;justify-content:center;gap:6px}
-.add-row-btn:hover{color:var(--primary);border-color:var(--primary);background:rgba(1,73,207,.04)}
-.goals-insight{background:var(--navy);border-radius:12px;padding:28px}
-.goals-insight-hdr{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--sky);margin-bottom:16px}
-.goals-insight p{color:rgba(255,255,255,.7);font-size:.95rem;line-height:1.65;font-weight:300;margin-bottom:16px}
-.question-list{list-style:none}
-.question-list li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:.92rem;color:rgba(255,255,255,.8)}
-.question-list li:last-child{border:none}
-.q-num{color:var(--orange);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;min-width:20px}
-.key-hint{font-size:.72rem;color:var(--muted);font-style:italic;margin-top:6px;text-align:center}
-#s-audit{background:var(--white)}
-.audit-layout{display:grid;grid-template-columns:400px 1fr;gap:24px;width:100%;max-width:1060px;margin-top:24px;align-items:start}
-.audit-panel{background:var(--off);border:1px solid var(--border);border-radius:12px;padding:22px;overflow-y:auto;max-height:64vh}
-.audit-panel::-webkit-scrollbar{width:4px}.audit-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.audit-panel h4{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:12px}
-.session-box{background:var(--navy);border-radius:10px;padding:16px 18px;margin-bottom:16px}
-.session-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.sbox-label{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45);font-weight:700;margin-bottom:4px}
-.sbox-code{font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:800;color:var(--sky);letter-spacing:.2em;line-height:1}
-.new-session-btn{background:none;border:1px solid rgba(255,255,255,.2);border-radius:6px;color:rgba(255,255,255,.5);font-size:.75rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;cursor:pointer;transition:color .2s,border-color .2s}
-.new-session-btn:hover{color:var(--orange);border-color:var(--orange)}
-.sbox-url-input{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#fff;font-size:.8rem;padding:8px 10px;font-family:'Barlow',sans-serif;outline:none;transition:border-color .2s;margin-bottom:10px}
-.sbox-url-input:focus{border-color:rgba(255,255,255,.35)}.sbox-url-input::placeholder{color:rgba(255,255,255,.3);font-size:.75rem}
-.qr-row{display:flex;align-items:flex-start;gap:14px}
-#qr-code-el{background:#fff;padding:6px;border-radius:6px;flex-shrink:0}
-#qr-code-el img,#qr-code-el canvas{display:block!important}
-.qr-info{flex:1}
-.qr-info-label{font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);font-weight:700;margin-bottom:6px}
-.qr-share-url{font-size:.7rem;color:var(--sky);word-break:break-all;line-height:1.4;margin-bottom:8px}
-.copy-btn{background:rgba(71,197,250,.12);border:1px solid rgba(71,197,250,.25);border-radius:5px;color:var(--sky);font-size:.7rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;cursor:pointer;transition:background .2s}
-.copy-btn:hover{background:rgba(71,197,250,.22)}
-.sbox-hint{font-size:.7rem;color:rgba(255,255,255,.3);font-style:italic;margin-top:10px;line-height:1.4}
-.name-input-row{display:flex;gap:8px;margin-bottom:10px}
-.name-input-row input{flex:1;background:var(--white);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.88rem;padding:8px 12px;font-family:'Barlow',sans-serif;outline:none;transition:border-color .2s}
-.name-input-row input:focus{border-color:var(--primary)}
-.add-confirm-btn{background:var(--primary);color:var(--white);border:none;border-radius:6px;padding:8px 16px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em;transition:background .2s}
-.participant-row{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;animation:itemIn .2s ease}
-.p-name-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
-.p-name{font-family:'Barlow Condensed',sans-serif;font-size:.88rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--navy)}
-.p-goal-tag{font-size:.7rem;color:var(--primary);font-style:italic;font-family:'Barlow',sans-serif;display:block;margin-top:1px}
-.p-source-tag{font-size:.62rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;font-weight:700;display:block;margin-top:1px}
-.remove-btn{background:none;border:none;color:var(--border);cursor:pointer;font-size:12px;transition:color .2s;flex-shrink:0}
-.remove-btn:hover{color:#e05555}
-.cat-inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.cat-wrap label{display:block;font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;font-weight:700;margin-bottom:3px}
-.cat-wrap.c1 label{color:var(--c1)}.cat-wrap.c2 label{color:var(--c2)}.cat-wrap.c3 label{color:var(--c3)}.cat-wrap.c4 label{color:var(--c4)}
-.cat-wrap input{width:100%;background:var(--off);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:.88rem;padding:5px 8px;font-family:'Barlow',sans-serif;outline:none;transition:border-color .2s}
-.cat-wrap input:focus{border-color:var(--primary)}
-.total-badge{font-size:.72rem;text-align:right;margin-top:6px;font-weight:600}
-.total-badge.ok{color:#2ecc71}.total-badge.bad{color:#e05555}
-.fb-row{background:var(--off);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;animation:itemIn .2s ease}
-.fb-name{font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--navy)}
-.fb-vals{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-.fb-val-chip{font-size:.68rem;padding:3px 8px;border-radius:4px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em}
-.hint-text{font-size:.78rem;color:var(--muted);font-style:italic;margin-top:6px;text-align:center}
-.audit-empty-hint{font-size:.82rem;color:var(--muted);font-style:italic;text-align:center;padding:16px 0}
-.live-badge{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#2ecc71;display:flex;align-items:center;margin-bottom:10px}
-.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#2ecc71;margin-right:6px;animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.chart-panel{background:var(--off);border:1px solid var(--border);border-radius:12px;padding:24px}
-.chart-panel h4{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:18px}
-.chart-empty{display:flex;align-items:center;justify-content:center;min-height:160px;color:var(--muted);font-size:.88rem;font-style:italic;border:1px dashed var(--border);border-radius:8px}
-.chart-legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:16px}
-.cl-item{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--muted)}
-.cl-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
-.audit-qs{margin-top:18px;border-top:1px solid var(--border);padding-top:16px}
-.audit-q{display:flex;gap:10px;margin-bottom:7px;font-size:.88rem;color:var(--text)}
-.audit-q-num{color:var(--orange);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.95rem;min-width:16px;flex-shrink:0}
-.audit-goals-ref{margin-top:14px;padding:12px 14px;background:rgba(1,73,207,.06);border-radius:8px;border:1px solid rgba(1,73,207,.15);font-size:.82rem;color:var(--primary);line-height:1.5}
-.audit-goals-ref strong{display:block;margin-bottom:6px}
-#s-scenarios{background:var(--white)}
-.scenario-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;width:100%;max-width:1060px;margin-top:24px}
-.sc-card{background:var(--off);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.sc-top{padding:16px 15px 12px}
-.sc-num{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:5px}
-.sc-title{font-family:'Barlow Condensed',sans-serif;font-size:1.05rem;font-weight:700;color:var(--navy);line-height:1.2;margin-bottom:8px}
-.sc-sit{font-size:.8rem;color:var(--muted);line-height:1.5}
-.sc-discuss{border-top:1px solid var(--border);background:var(--navy);padding:12px 14px}
-.sc-discuss-hdr{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--sky);margin-bottom:8px}
-.sc-q{font-size:.78rem;color:rgba(255,255,255,.7);margin-bottom:5px;display:flex;gap:6px;line-height:1.4}
-.sc-q-dot{color:var(--orange);flex-shrink:0;font-weight:700}
-#s-pressure{background:var(--navy)}
-.pressure-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;width:100%;max-width:900px;margin-top:28px}
-.pressure-card{border:1px solid var(--border-d);border-radius:10px;padding:22px 20px;background:rgba(255,255,255,.04)}
-.p-num{font-family:'Barlow Condensed',sans-serif;font-size:2.8rem;font-weight:800;color:rgba(255,255,255,.1);line-height:1;margin-bottom:10px}
-.pressure-card p{font-size:.92rem;color:rgba(255,255,255,.75);line-height:1.6;font-weight:300}
-.pressure-card p strong{color:var(--sky);font-weight:600}
-#s-close{background:var(--navy);overflow:hidden}
-.close-stripe{position:absolute;top:0;left:0;width:38%;height:100%;background:linear-gradient(170deg,var(--primary) 0%,var(--navy-l) 100%);clip-path:polygon(0 0,82% 0,100% 100%,0 100%)}
-.close-dot{position:absolute;bottom:-60px;right:-60px;width:260px;height:260px;border-radius:50%;background:var(--orange);opacity:.1}
-#audit-add-form,#goal-add-form{display:none}
-#audit-add-form.show,#goal-add-form.show{display:flex}
-#goal-add-confirm{display:none}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;font-family:'Barlow',sans-serif;background:#032254;color:#fff;overflow-x:hidden}
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.active{display:flex}
+.wv-header{background:#0149cf;padding:15px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.wv-logo{background:#ff8000;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;padding:4px 10px;border-radius:2px}
+.wv-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.75)}
+.center-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px}
+.center-screen h2{font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:800;text-align:center;margin-bottom:10px}
+.center-screen p{color:rgba(255,255,255,.55);text-align:center;font-size:.95rem;font-weight:300;margin-bottom:36px;line-height:1.6;max-width:280px}
+.code-input{width:100%;max-width:260px;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.18);border-radius:12px;color:#fff;font-size:2rem;font-family:'Barlow Condensed',sans-serif;font-weight:800;letter-spacing:.25em;text-transform:uppercase;text-align:center;padding:16px;outline:none;margin-bottom:16px;transition:border-color .2s}
+.code-input:focus{border-color:#47c5fa}
+.code-input::placeholder{font-size:1.1rem;color:rgba(255,255,255,.25);letter-spacing:.1em}
+.form-scroll{flex:1;overflow-y:auto;padding:20px 20px 100px}
+.session-badge{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 14px;margin-bottom:22px}
+.sb-label{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45);font-weight:700}
+.sb-code{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;color:#47c5fa;letter-spacing:.12em}
+.field-label{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.45);margin-bottom:8px;display:block}
+.name-field{width:100%;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.14);border-radius:10px;color:#fff;font-size:1.05rem;padding:14px 16px;font-family:'Barlow',sans-serif;outline:none;transition:border-color .2s;margin-bottom:24px}
+.name-field:focus{border-color:#47c5fa}
+.name-field::placeholder{color:rgba(255,255,255,.28)}
+.cats-title{font-family:'Barlow Condensed',sans-serif;font-size:1.05rem;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:4px}
+.cats-sub{font-size:.8rem;color:rgba(255,255,255,.4);font-weight:300;margin-bottom:16px;line-height:1.5}
+.cat-row{background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.09);border-radius:12px;padding:14px 14px 14px 12px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.cat-bar{width:4px;height:40px;border-radius:2px;flex-shrink:0}
+.cat-info{flex:1;min-width:0}
+.cat-name{font-size:.88rem;font-weight:600;color:#fff;margin-bottom:2px}
+.cat-desc{font-size:.72rem;color:rgba(255,255,255,.4);font-weight:300;line-height:1.3}
+.cat-controls{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.cat-btn{width:36px;height:36px;background:rgba(255,255,255,.1);border:none;border-radius:8px;color:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s;user-select:none}
+.cat-btn:active{background:rgba(255,255,255,.25)}
+.cat-val{font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:800;color:#fff;min-width:46px;text-align:center}
+.total-section{background:rgba(255,255,255,.05);border-radius:10px;padding:14px 16px;margin-bottom:20px}
+.total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.total-lbl{font-size:.78rem;color:rgba(255,255,255,.55);font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.total-num{font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:800;transition:color .2s}
+.total-num.ok{color:#2ecc71}.total-num.over{color:#e05555}.total-num.under{color:rgba(255,255,255,.55)}
+.bar-bg{height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .25s,background .25s}
+.bar-hint{font-size:.75rem;color:rgba(255,255,255,.38);margin-top:7px;text-align:center;font-style:italic}
+.submit-btn{width:100%;background:#0149cf;color:#fff;border:none;border-radius:12px;padding:18px;font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:opacity .2s,transform .1s}
+.submit-btn:active:not(:disabled){transform:scale(.98)}
+.submit-btn:disabled{opacity:.3;cursor:default}
+.thanks-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;text-align:center}
+.check-circle{width:72px;height:72px;border-radius:50%;background:rgba(46,204,113,.15);border:2px solid #2ecc71;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 24px}
+.thanks-body h2{font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:800;margin-bottom:12px}
+.thanks-body p{color:rgba(255,255,255,.55);font-size:.95rem;font-weight:300;line-height:1.65;max-width:280px}
+.thanks-code{color:#47c5fa;font-weight:600}
+.primary-btn{background:#ff8000;color:#fff;border:none;border-radius:10px;padding:14px 32px;font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-top:24px;transition:opacity .2s}
+.primary-btn:active{opacity:.8}
+/* Hot Take styles */
+.ht-prompt{background:rgba(71,197,250,.08);border:1px solid rgba(71,197,250,.2);border-radius:12px;padding:20px 22px;margin-bottom:24px}
+.ht-prompt p{font-size:1rem;font-style:italic;color:#47c5fa;line-height:1.65}
+.ht-prompt .ht-label{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.4);margin-bottom:8px;font-style:normal}
+.ht-anon{font-size:.72rem;color:rgba(255,255,255,.3);font-style:italic;margin-bottom:16px;text-align:center}
+.ht-textarea{width:100%;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.14);border-radius:10px;color:#fff;font-size:1rem;padding:14px 16px;font-family:'Barlow',sans-serif;outline:none;transition:border-color .2s;resize:none;min-height:120px;line-height:1.6}
+.ht-textarea:focus{border-color:#47c5fa}
+.ht-textarea::placeholder{color:rgba(255,255,255,.28)}
+.ht-submit-btn{width:100%;background:#ff8000;color:#fff;border:none;border-radius:12px;padding:18px;font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-top:14px;transition:opacity .2s,transform .1s}
+.ht-submit-btn:active:not(:disabled){transform:scale(.98)}
+.ht-submit-btn:disabled{opacity:.3;cursor:default}
 </style>
 </head>
 <body>
-<div id="slide-label">Change By Design</div>
 
-<div class="slide dark" id="s1">
-  <div class="cover-stripe"></div><div class="cover-dot"></div>
-  <div style="position:relative;z-index:1;max-width:640px;width:100%">
-    <div class="wv-badge">WorldVue — Upper Management Training</div>
-    <h1 class="light" style="font-size:clamp(2.8rem,5vw,4.4rem)">Change By Design:<br>What We Protect<br>Becomes Culture</h1>
-    <div class="rule sky" style="margin-top:20px"></div>
-    <p class="body-light" style="max-width:500px">Every decision made under pressure is a design decision. Today we examine the patterns those decisions create.</p>
+<div class="screen" id="screen-session">
+  <div class="wv-header"><div class="wv-logo">WorldVue</div><div class="wv-title">Change By Design</div></div>
+  <div class="center-screen">
+    <h2>Enter Session Code</h2>
+    <p>Your facilitator has a session code on screen. Enter it below to join.</p>
+    <input class="code-input" id="code-input" placeholder="e.g. WV7K" maxlength="8" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"/>
+    <button class="primary-btn" onclick="joinSession()">Join Session</button>
   </div>
 </div>
 
-<div class="slide light" id="s2">
-  <div style="max-width:760px;width:100%;text-align:left">
-    <span class="label blue">The Pressure Frame</span><div class="rule blue"></div>
-    <h2 class="dark">Every week, leadership means<br>choosing between competing priorities</h2>
-    <ul class="tradeoff-list">
-      <li><span class="side-a">Urgency</span><span class="vs-badge">vs</span><span class="side-b">Sustainability</span></li>
-      <li><span class="side-a">Customer demand</span><span class="vs-badge">vs</span><span class="side-b">Team capacity</span></li>
-      <li><span class="side-a">Speed</span><span class="vs-badge">vs</span><span class="side-b">Alignment</span></li>
-      <li><span class="side-a">Ownership</span><span class="vs-badge">vs</span><span class="side-b">Escalation</span></li>
-      <li><span class="side-a">Short-term wins</span><span class="vs-badge">vs</span><span class="side-b">System resilience</span></li>
-    </ul>
-    <p class="body" style="margin-top:22px">These aren't occasional dilemmas. They are <strong style="color:var(--text)">repeated decisions</strong> — and repeated decisions determine where pressure lands.</p>
-  </div>
-</div>
-
-<div class="slide light" id="s3">
-  <div style="max-width:760px;width:100%;text-align:left">
-    <span class="label orange">Leadership Stress Test</span><div class="rule orange"></div>
-    <h2 class="dark">Where did pressure land<br>in the last two weeks?</h2>
-    <div class="reflection-box">
-      <p>"What leadership moment did I rush, delay, or avoid last week?"</p>
-      <p class="sub">Take a moment — write it down privately.<br>Then ask: <strong style="color:var(--text)">Who carried that pressure?</strong></p>
+<div class="screen" id="screen-form">
+  <div class="wv-header"><div class="wv-logo">WorldVue</div><div class="wv-title">Calendar Audit</div></div>
+  <div class="form-scroll">
+    <div class="session-badge"><span class="sb-label">Session</span><span class="sb-code" id="form-code">—</span></div>
+    <label class="field-label">Your Name or Role</label>
+    <input class="name-field" id="name-field" type="text" placeholder="e.g. Director of Operations" autocomplete="off"/>
+    <div class="cats-title">Distribute Your Last 2–3 Weeks</div>
+    <div class="cats-sub">Tap + / − to adjust where your leadership time actually went. Must total 100%.</div>
+    <div class="cat-row"><div class="cat-bar" style="background:#0149cf"></div><div class="cat-info"><div class="cat-name">Running the Business</div><div class="cat-desc">Operational execution &amp; delivery</div></div><div class="cat-controls"><button class="cat-btn" onclick="adj('run',-5)">−</button><div class="cat-val" id="v-run">25</div><button class="cat-btn" onclick="adj('run',5)">+</button></div></div>
+    <div class="cat-row"><div class="cat-bar" style="background:#ff8000"></div><div class="cat-info"><div class="cat-name">Protecting the Customer</div><div class="cat-desc">Escalations &amp; relationship management</div></div><div class="cat-controls"><button class="cat-btn" onclick="adj('protect',-5)">−</button><div class="cat-val" id="v-protect">25</div><button class="cat-btn" onclick="adj('protect',5)">+</button></div></div>
+    <div class="cat-row"><div class="cat-bar" style="background:#47c5fa"></div><div class="cat-info"><div class="cat-name">Developing Leaders</div><div class="cat-desc">Coaching &amp; leadership growth</div></div><div class="cat-controls"><button class="cat-btn" onclick="adj('develop',-5)">−</button><div class="cat-val" id="v-develop">25</div><button class="cat-btn" onclick="adj('develop',5)">+</button></div></div>
+    <div class="cat-row"><div class="cat-bar" style="background:#032254;outline:1px solid rgba(255,255,255,.2)"></div><div class="cat-info"><div class="cat-name">Improving the System</div><div class="cat-desc">Process improvement &amp; design</div></div><div class="cat-controls"><button class="cat-btn" onclick="adj('improve',-5)">−</button><div class="cat-val" id="v-improve">25</div><button class="cat-btn" onclick="adj('improve',5)">+</button></div></div>
+    <div class="total-section">
+      <div class="total-row"><span class="total-lbl">Total</span><span class="total-num ok" id="total-num">100%</span></div>
+      <div class="bar-bg"><div class="bar-fill" id="bar-fill" style="width:100%;background:#2ecc71"></div></div>
+      <div class="bar-hint" id="bar-hint">Ready to submit!</div>
     </div>
-    <p class="body" style="margin-top:22px">Leadership pressure rarely disappears. It shifts. It lands somewhere — and wherever it lands repeatedly, drift begins.</p>
+    <button class="submit-btn" id="submit-btn" onclick="submitResponse()">Submit My Calendar</button>
   </div>
 </div>
 
-<div class="slide light" id="s4">
-  <div style="max-width:960px;width:100%;text-align:left">
-    <div class="drift-tag dt-blue">Drift Pattern 1 of 3</div>
-    <h2 class="dark" style="margin-top:4px">Bottleneck Drift</h2>
-    <p class="drift-def">Pressure repeatedly lands on the same leaders and stays there because decisions, approvals, or clarity cannot move without them.</p>
-    <div class="drift-layout">
-      <div class="drift-box"><h4>What causes it</h4><ul><li>Unclear decision boundaries</li><li>Trust gaps in delegation</li><li>Risk avoidance</li><li>Historical escalation habits</li><li>Leaders stepping in to protect outcomes</li><li>Lack of defined ownership</li></ul></div>
-      <div class="drift-box"><h4>What the organization learns</h4><ul><li>Ownership sits above, not within teams</li><li>Escalation is rewarded</li><li>Decisions require approval</li><li>Speed depends on leader availability</li><li>Leaders become capacity constraints</li></ul></div>
+<div class="screen" id="screen-thanks">
+  <div class="wv-header"><div class="wv-logo">WorldVue</div><div class="wv-title">Calendar Audit</div></div>
+  <div class="thanks-body">
+    <div class="check-circle">✓</div>
+    <h2>Submitted!</h2>
+    <p>Your response has been added to session <span class="thanks-code" id="thanks-code">—</span>.<br><br>Watch the chart update live on the facilitator's screen.</p>
+    <button class="primary-btn" onclick="showScreen('screen-hottake')">Continue to Hot Take →</button>
+  </div>
+</div>
+
+<div class="screen" id="screen-hottake">
+  <div class="wv-header"><div class="wv-logo">WorldVue</div><div class="wv-title">Hot Take</div></div>
+  <div class="form-scroll">
+    <div class="session-badge"><span class="sb-label">Session</span><span class="sb-code" id="ht-form-code">—</span></div>
+    <div class="ht-prompt">
+      <div class="ht-label">Your Hot Take</div>
+      <p>"The pressure pattern I know I'm responsible for is ___"</p>
     </div>
+    <p class="ht-anon">Anonymous — your name will not appear on screen</p>
+    <label class="field-label">Complete the prompt</label>
+    <textarea class="ht-textarea" id="ht-text" placeholder="Be specific — think about your team, your decisions, your last two weeks…"></textarea>
+    <button class="ht-submit-btn" id="ht-submit-btn" onclick="submitHotTake()">Submit Hot Take</button>
   </div>
 </div>
 
-<div class="slide light" id="s5">
-  <div style="max-width:960px;width:100%;text-align:left">
-    <div class="drift-tag dt-navy">Drift Pattern 2 of 3</div>
-    <h2 class="dark" style="margin-top:4px">Alignment Drift</h2>
-    <p class="drift-def">Pressure appears because teams, departments, or leaders operate with different expectations, promises, timelines, or definitions of success.</p>
-    <div class="drift-layout">
-      <div class="drift-box"><h4>What causes it</h4><ul><li>Lack of shared standards</li><li>Silo decision-making</li><li>Unclear handoff expectations</li><li>Speed prioritized over coordination</li><li>Communication gaps between leaders</li><li>Different definitions of "done"</li></ul></div>
-      <div class="drift-box"><h4>What the organization learns</h4><ul><li>Promises may not reflect reality</li><li>Handoffs create risk</li><li>Clarity is negotiated, not designed</li><li>Escalation resolves alignment gaps</li><li>Friction becomes normalized</li></ul></div>
-    </div>
+<div class="screen" id="screen-ht-thanks">
+  <div class="wv-header"><div class="wv-logo">WorldVue</div><div class="wv-title">Hot Take</div></div>
+  <div class="thanks-body">
+    <div class="check-circle" style="border-color:#ff8000;background:rgba(255,128,0,.12)">✓</div>
+    <h2>Submitted!</h2>
+    <p>Your response is anonymous and now visible on the facilitator's screen.<br><br>Watch the conversation unfold.</p>
   </div>
-</div>
-
-<div class="slide light" id="s6">
-  <div style="max-width:960px;width:100%;text-align:left">
-    <div class="drift-tag dt-orange">Drift Pattern 3 of 3</div>
-    <h2 class="dark" style="margin-top:4px">Standard Drift</h2>
-    <p class="drift-def">Pressure leads leaders and teams to flex expectations, documentation, or quality standards in order to maintain speed.</p>
-    <div class="drift-layout">
-      <div class="drift-box"><h4>What causes it</h4><ul><li>Urgency culture</li><li>Lack of visible standards</li><li>Process complexity</li><li>Time pressure</li><li>Absence of reinforcement</li><li>Speed rewarded more than consistency</li></ul></div>
-      <div class="drift-box"><h4>What the organization learns</h4><ul><li>Standards are flexible</li><li>Shortcuts are acceptable</li><li>Clarity depends on the leader</li><li>Process is optional under urgency</li><li>Consistency is not protected</li></ul></div>
-    </div>
-  </div>
-</div>
-
-<div class="slide dark scroll" id="s-protect" style="padding-top:52px">
-  <div style="max-width:1060px;width:100%;text-align:left">
-    <span class="label sky">Group Activity</span><div class="rule sky"></div>
-    <h2 class="light">Designing What Gets Protected</h2>
-    <p class="body-light" style="max-width:640px;margin-top:6px">When pressure rises, leaders can't protect everything. Call out what your organization consistently protects — and what absorbs the pressure as a result.</p>
-    <div class="protect-layout">
-      <div class="protect-col col-green">
-        <div class="protect-col-hdr"><span>✓</span> When pressure rises, we protect…</div>
-        <div class="protect-items" id="protect-items"></div>
-        <div class="protect-input-wrap"><input class="protect-input" id="protect-input" placeholder="Type a response and press Enter…"/><button class="protect-add-btn" onclick="addProtect()">Add</button></div>
-      </div>
-      <div class="protect-col col-red">
-        <div class="protect-col-hdr"><span>↓</span> So this absorbs pressure…</div>
-        <div class="protect-items" id="absorb-items"></div>
-        <div class="protect-input-wrap"><input class="protect-input" id="absorb-input" placeholder="Type a response and press Enter…"/><button class="protect-add-btn" onclick="addAbsorb()">Add</button></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="slide light scroll" id="s-goals" style="padding-top:52px">
-  <div style="max-width:1060px;width:100%;text-align:left">
-    <span class="label blue">Before We Look at Time</span><div class="rule blue"></div>
-    <h2 class="dark">What are your goals for your team?</h2>
-    <p class="body" style="margin-top:6px;max-width:660px">Before we look at where time actually goes, let's hear where leaders intend to go. Enter each person's stated top goal — we'll hold it up against the calendar data on the next slide.</p>
-  </div>
-  <div class="goals-layout">
-    <div class="goals-panel">
-      <h4>Team Goals</h4>
-      <div id="goal-add-form" class="two-input-row">
-        <input type="text" id="goal-name-input" placeholder="Name / Role…"/>
-        <input type="text" id="goal-text-input" placeholder="Their top goal for their team…"/>
-      </div>
-      <div id="goal-add-confirm"><button class="goal-confirm-btn" onclick="confirmGoal()">Add Goal</button></div>
-      <div id="goal-list"></div>
-      <button class="add-row-btn" id="goal-add-btn" onclick="showGoalForm()">+ Add Person</button>
-      <p class="key-hint">Press Enter to add</p>
-    </div>
-    <div class="goals-insight">
-      <div class="goals-insight-hdr">Why this matters first</div>
-      <p>Most leaders don't struggle with <em>intention</em>. They struggle with <em>protection</em>. In the next exercise, we'll look at where time actually went — and compare it against the goals stated here.</p>
-      <p>The gap between stated goals and time allocation is where drift lives.</p>
-      <ul class="question-list">
-        <li><span class="q-num">1</span>Does the time you invest align with the goal you just named?</li>
-        <li><span class="q-num">2</span>If someone on your team tracked your calendar, would they know what you're building toward?</li>
-        <li><span class="q-num">3</span>What would have to change for your calendar to reflect your goals?</li>
-      </ul>
-    </div>
-  </div>
-</div>
-
-<div class="slide light scroll" id="s-audit" style="padding-top:52px">
-  <div style="max-width:1060px;width:100%;text-align:left">
-    <span class="label orange">Live Activity</span><div class="rule orange"></div>
-    <h2 class="dark">Calendar Audit: Where Does Leadership Time Actually Go?</h2>
-    <p class="body" style="margin-top:6px;max-width:700px">Participants submit from their phones — the chart updates live. Compare results to the goals stated on the previous slide.</p>
-  </div>
-  <div class="audit-layout">
-    <div class="audit-panel">
-      <div class="session-box">
-        <div class="session-top">
-          <div><div class="sbox-label">Session Code</div><div class="sbox-code" id="sbox-code">—</div></div>
-          <button class="new-session-btn" onclick="newSession()">New Session</button>
-        </div>
-        <input class="sbox-url-input" id="sbox-url" placeholder="Paste: https://jdaviswv.github.io/ChangeByDesignQ12026" oninput="updateQR()"/>
-        <div id="qr-area" style="display:none">
-          <div class="qr-row">
-            <div id="qr-code-el"></div>
-            <div class="qr-info">
-              <div class="qr-info-label">Share Link</div>
-              <div class="qr-share-url" id="qr-share-url"></div>
-              <button class="copy-btn" onclick="copyShareUrl()">Copy Link</button>
-            </div>
-          </div>
-          <div class="sbox-hint">In-person: scan QR &nbsp;·&nbsp; Remote: paste link in Zoom/Teams chat</div>
-        </div>
-      </div>
-      <div class="live-badge" id="live-badge"><span class="live-dot"></span>Live — updating in real time</div>
-      <h4>Submitted Responses</h4>
-      <div id="audit-participant-list"><div class="audit-empty-hint">Waiting for submissions…</div></div>
-      <button class="add-row-btn" id="audit-add-btn" onclick="showAuditForm()" style="margin-top:10px">+ Add manually</button>
-      <div id="audit-add-form" class="name-input-row">
-        <input type="text" id="audit-new-name" placeholder="Name or role…"/>
-        <button class="add-confirm-btn" onclick="confirmManualAdd()">Add</button>
-      </div>
-      <p class="hint-text">Manual entries visible locally only</p>
-    </div>
-    <div class="chart-panel">
-      <h4>Time Distribution — The Room</h4>
-      <div class="chart-wrap">
-        <div class="chart-empty" id="audit-chart-empty">Waiting for submissions…</div>
-        <canvas id="auditChart" style="display:none"></canvas>
-      </div>
-      <div class="chart-legend">
-        <div class="cl-item"><div class="cl-dot" style="background:var(--c1)"></div>Running the Business</div>
-        <div class="cl-item"><div class="cl-dot" style="background:var(--c2)"></div>Protecting the Customer</div>
-        <div class="cl-item"><div class="cl-dot" style="background:var(--c3)"></div>Developing Leaders</div>
-        <div class="cl-item"><div class="cl-dot" style="background:var(--c4)"></div>Improving the System</div>
-      </div>
-      <div class="audit-qs">
-        <div class="audit-q"><span class="audit-q-num">1</span>Which column received the most protection?</div>
-        <div class="audit-q"><span class="audit-q-num">2</span>Which column absorbed pressure first?</div>
-        <div class="audit-q"><span class="audit-q-num">3</span>Which drift type does this pattern reflect?</div>
-        <div class="audit-q"><span class="audit-q-num">4</span>What does this pattern teach leaders below you?</div>
-      </div>
-      <div class="audit-goals-ref" id="goals-ref-box" style="display:none">
-        <strong>↑ Compare to stated goals:</strong>
-        <div id="goals-ref-content"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="slide light scroll" id="s-scenarios" style="padding-top:52px">
-  <div style="max-width:1060px;width:100%;text-align:left">
-    <span class="label blue">Small Group Discussion</span><div class="rule blue"></div>
-    <h2 class="dark">Scenario Cards — Pressure in Action</h2>
-    <p class="body" style="margin-top:6px;max-width:700px">Assign a card to each group. Work together to understand where pressure lands and what the organization is learning from it.</p>
-  </div>
-  <div class="scenario-grid">
-    <div class="sc-card"><div class="sc-top"><div class="sc-num">Card 1</div><div class="sc-title">The Escalation Boomerang</div><div class="sc-sit">A recurring issue escalates to you. You resolve it quickly — but it returns weeks later with no systemic change.</div></div><div class="sc-discuss"><div class="sc-discuss-hdr">Discuss Together</div><div class="sc-q"><span class="sc-q-dot">›</span>Where does pressure land first?</div><div class="sc-q"><span class="sc-q-dot">›</span>What behavior is the system unintentionally teaching?</div><div class="sc-q"><span class="sc-q-dot">›</span>What design change would prevent it from repeating?</div></div></div>
-    <div class="sc-card"><div class="sc-top"><div class="sc-num">Card 2</div><div class="sc-title">The Cross-Team Timeline Surprise</div><div class="sc-sit">Another department commits to a timeline your team must execute. The customer is told before alignment occurs.</div></div><div class="sc-discuss"><div class="sc-discuss-hdr">Discuss Together</div><div class="sc-q"><span class="sc-q-dot">›</span>Where does pressure land first?</div><div class="sc-q"><span class="sc-q-dot">›</span>What behavior is the system unintentionally teaching?</div><div class="sc-q"><span class="sc-q-dot">›</span>What design change would prevent it from repeating?</div></div></div>
-    <div class="sc-card"><div class="sc-top"><div class="sc-num">Card 3</div><div class="sc-title">The Development Cancellation Pattern</div><div class="sc-sit">Coaching conversations are repeatedly rescheduled due to escalations. Months pass without a consistent rhythm.</div></div><div class="sc-discuss"><div class="sc-discuss-hdr">Discuss Together</div><div class="sc-q"><span class="sc-q-dot">›</span>Where does pressure land first?</div><div class="sc-q"><span class="sc-q-dot">›</span>What behavior is the system unintentionally teaching?</div><div class="sc-q"><span class="sc-q-dot">›</span>What design change would protect development from disruption?</div></div></div>
-    <div class="sc-card"><div class="sc-top"><div class="sc-num">Card 4</div><div class="sc-title">The Waiting Decision</div><div class="sc-sit">Your team cannot move forward without leadership approval. Work pauses while customers keep asking for updates.</div></div><div class="sc-discuss"><div class="sc-discuss-hdr">Discuss Together</div><div class="sc-q"><span class="sc-q-dot">›</span>Where does pressure land first?</div><div class="sc-q"><span class="sc-q-dot">›</span>What behavior is the system unintentionally teaching?</div><div class="sc-q"><span class="sc-q-dot">›</span>What design change would improve decision flow?</div></div></div>
-    <div class="sc-card"><div class="sc-top"><div class="sc-num">Card 5</div><div class="sc-title">The Shortcut That Worked</div><div class="sc-sit">A process step is skipped to meet a deadline. The project succeeds — and the shortcut becomes an expectation.</div></div><div class="sc-discuss"><div class="sc-discuss-hdr">Discuss Together</div><div class="sc-q"><span class="sc-q-dot">›</span>Where does pressure land first?</div><div class="sc-q"><span class="sc-q-dot">›</span>What behavior is the system unintentionally teaching?</div><div class="sc-q"><span class="sc-q-dot">›</span>What design change would maintain speed while protecting standards?</div></div></div>
-    <div class="sc-card"><div class="sc-top"><div class="sc-num">Card 6</div><div class="sc-title">The Customer Relationship Buffer</div><div class="sc-sit">A customer escalates repeatedly. You absorb the pressure to protect the relationship while shielding your team.</div></div><div class="sc-discuss"><div class="sc-discuss-hdr">Discuss Together</div><div class="sc-q"><span class="sc-q-dot">›</span>Where does pressure land first?</div><div class="sc-q"><span class="sc-q-dot">›</span>What behavior is the system unintentionally teaching?</div><div class="sc-q"><span class="sc-q-dot">›</span>What design change would distribute relationship ownership?</div></div></div>
-    <div class="sc-card"><div class="sc-top"><div class="sc-num">Card 7</div><div class="sc-title">The High Performer Friction</div><div class="sc-sit">A strong individual delivers results but creates coordination challenges. You hesitate to intervene.</div></div><div class="sc-discuss"><div class="sc-discuss-hdr">Discuss Together</div><div class="sc-q"><span class="sc-q-dot">›</span>Where does pressure land first?</div><div class="sc-q"><span class="sc-q-dot">›</span>What behavior is the system unintentionally teaching?</div><div class="sc-q"><span class="sc-q-dot">›</span>What design change would reinforce both performance and collaboration?</div></div></div>
-    <div class="sc-card"><div class="sc-top"><div class="sc-num">Card 8</div><div class="sc-title">The Ownership Blur</div><div class="sc-sit">A recurring issue moves between teams with no clear owner. You repeatedly step in to prevent delays.</div></div><div class="sc-discuss"><div class="sc-discuss-hdr">Discuss Together</div><div class="sc-q"><span class="sc-q-dot">›</span>Where does pressure land first?</div><div class="sc-q"><span class="sc-q-dot">›</span>What behavior is the system unintentionally teaching?</div><div class="sc-q"><span class="sc-q-dot">›</span>What design change would clarify ownership?</div></div></div>
-  </div>
-</div>
-
-<div class="slide dark" id="s-pressure">
-  <div style="max-width:900px;width:100%;text-align:left">
-    <span class="label sky">Closing Activity</span><div class="rule sky"></div>
-    <h2 class="light">Pressure Mapping</h2>
-    <p class="body-light" style="max-width:660px;margin-top:8px">These are not complaints — they are signals. Anonymously write three things:</p>
-    <div class="pressure-grid">
-      <div class="pressure-card"><div class="p-num">01</div><p>One <strong>recurring friction point</strong> in how work moves through the organization</p></div>
-      <div class="pressure-card"><div class="p-num">02</div><p>One <strong>behavior the system unintentionally rewards</strong> that creates pressure elsewhere</p></div>
-      <div class="pressure-card"><div class="p-num">03</div><p>One <strong>place pressure repeatedly lands</strong> that reveals a design opportunity</p></div>
-    </div>
-    <p class="body-light" style="margin-top:24px;font-style:italic;font-size:.9rem">After collecting: What patterns do you notice? Which signal connects most to the drift types we discussed today?</p>
-  </div>
-</div>
-
-<div class="slide dark" id="s-close">
-  <div class="close-stripe"></div><div class="close-dot"></div>
-  <div style="position:relative;z-index:1;max-width:680px">
-    <span class="label white">Remember</span><div class="rule sky"></div>
-    <h1 class="light" style="font-size:clamp(2.2rem,4vw,3.6rem);line-height:1.15">What you protect<br>becomes culture.<br>What absorbs pressure<br>becomes drift.</h1>
-    <p class="body-light" style="margin-top:28px;max-width:500px">Leadership insight doesn't come from reflection alone. It comes from seeing the pattern — and choosing what to design differently.</p>
-  </div>
-</div>
-
-<div id="nav">
-  <button class="nav-btn" id="btn-prev" onclick="navigate(-1)" disabled>&#8592;</button>
-  <div id="slide-counter">1 / 12</div>
-  <button class="nav-btn" id="btn-next" onclick="navigate(1)">&#8594;</button>
 </div>
 
 <script>
-const firebaseConfig={apiKey:"AIzaSyBlEyn6Q4PXnhiO32AKF_5mmIbKUjnNMsc",authDomain:"change-by-design-q1.firebaseapp.com",databaseURL:"https://change-by-design-q1-default-rtdb.firebaseio.com",projectId:"change-by-design-q1",storageBucket:"change-by-design-q1.firebasestorage.app",messagingSenderId:"341465518012",appId:"1:341465518012:web:6a6a9a0e45ea19f9d965b9"};
+const firebaseConfig={apiKey:"AIzaSyBlEyn6Q4PXnhiO32AKF_5mmIbKUjnNMsc",authDomain:"change-by-design-q1.firebaseapp.com",databaseURL:"https://change-by-design-q1-default-rtdb.firebaseio.com",projectId:"change-by-design-q1",storageBucket:"change-by-design-q1.firebasestorage.app",messagingSenderId:"341455518012",appId:"1:341455518012:web:6a6a9a0e45ea19f9d965b9"};
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
-
-const SLIDES=['s1','s2','s3','s4','s5','s6','s-protect','s-goals','s-audit','s-scenarios','s-pressure','s-close'];
-const LABELS=['Introduction','Tradeoffs & Pressure','Leadership Stress Test','Bottleneck Drift','Alignment Drift','Standard Drift','What Gets Protected','Team Goals','Calendar Audit','Scenario Cards','Pressure Mapping','Closing'];
-const DARK_IDS=new Set(['s1','s-protect','s-pressure','s-close']);
-let cur=0;
-function showSlide(i){
-  const prev=document.getElementById(SLIDES[cur]);
-  if(prev){prev.classList.remove('visible');setTimeout(()=>prev.classList.remove('active'),300);}
-  cur=i;const el=document.getElementById(SLIDES[cur]);
-  el.classList.add('active');
-  requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('visible')));
-  document.getElementById('slide-counter').textContent=`${cur+1} / ${SLIDES.length}`;
-  document.getElementById('slide-label').textContent=LABELS[cur];
-  document.getElementById('btn-prev').disabled=cur===0;
-  document.getElementById('btn-next').disabled=cur===SLIDES.length-1;
-  document.body.classList.toggle('light-active',!DARK_IDS.has(SLIDES[cur]));
-  if(SLIDES[cur]==='s-audit')syncGoalsRef();
+let sessionCode='';
+const vals={run:25,protect:25,develop:25,improve:25};
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+window.addEventListener('load',()=>{const p=new URLSearchParams(window.location.search);const code=p.get('session');if(code){sessionCode=code.toUpperCase();startForm();}else showScreen('screen-session');});
+function joinSession(){const v=document.getElementById('code-input').value.trim().toUpperCase();if(!v)return;sessionCode=v;startForm();}
+document.getElementById('code-input').addEventListener('keydown',e=>{if(e.key==='Enter')joinSession();});
+function startForm(){document.getElementById('form-code').textContent=sessionCode;document.getElementById('ht-form-code').textContent=sessionCode;showScreen('screen-form');updateTotal();}
+function adj(cat,d){const n=vals[cat]+d;if(n<0||n>100)return;vals[cat]=n;document.getElementById('v-'+cat).textContent=n;updateTotal();}
+function updateTotal(){
+  const t=Object.values(vals).reduce((a,b)=>a+b,0);
+  const num=document.getElementById('total-num');const fill=document.getElementById('bar-fill');const hint=document.getElementById('bar-hint');const btn=document.getElementById('submit-btn');
+  num.textContent=t+'%';fill.style.width=Math.min(100,t)+'%';
+  if(t===100){num.className='total-num ok';fill.style.background='#2ecc71';hint.textContent='Ready to submit!';btn.disabled=false;}
+  else if(t>100){num.className='total-num over';fill.style.background='#e05555';hint.textContent=(t-100)+'% over — reduce a category';btn.disabled=true;}
+  else{num.className='total-num under';fill.style.background='#0149cf';hint.textContent=(100-t)+'% remaining to distribute';btn.disabled=true;}
 }
-function navigate(d){const t=cur+d;if(t>=0&&t<SLIDES.length)showSlide(t);}
-document.addEventListener('keydown',e=>{
-  if(e.target.tagName==='INPUT')return;
-  if(e.key==='ArrowRight'||e.key==='ArrowDown')navigate(1);
-  if(e.key==='ArrowLeft'||e.key==='ArrowUp')navigate(-1);
-});
-showSlide(0);
-
-function makePI(text,cid){const w=document.getElementById(cid);const em=w.querySelector('.protect-empty');if(em)em.remove();const el=document.createElement('div');el.className='protect-item';el.innerHTML=`<span>${text}</span><button class="del-btn" onclick="this.parentElement.remove()">✕</button>`;w.appendChild(el);}
-function addProtect(){const i=document.getElementById('protect-input');const v=i.value.trim();if(!v)return;makePI(v,'protect-items');i.value='';i.focus();}
-function addAbsorb(){const i=document.getElementById('absorb-input');const v=i.value.trim();if(!v)return;makePI(v,'absorb-items');i.value='';i.focus();}
-document.getElementById('protect-input').addEventListener('keydown',e=>{if(e.key==='Enter')addProtect();});
-document.getElementById('absorb-input').addEventListener('keydown',e=>{if(e.key==='Enter')addAbsorb();});
-['protect-items','absorb-items'].forEach(id=>{const d=document.createElement('div');d.className='protect-empty';d.textContent='Responses will appear here…';document.getElementById(id).appendChild(d);});
-
-let goals=[];
-function showGoalForm(){document.getElementById('goal-add-form').classList.add('show');document.getElementById('goal-add-confirm').style.display='block';document.getElementById('goal-add-btn').style.display='none';document.getElementById('goal-name-input').focus();}
-function confirmGoal(){
-  const name=document.getElementById('goal-name-input').value.trim();
-  const text=document.getElementById('goal-text-input').value.trim();
+async function submitResponse(){
+  const name=document.getElementById('name-field').value.trim()||'Anonymous';
+  const btn=document.getElementById('submit-btn');btn.disabled=true;btn.textContent='Submitting…';
+  try{
+    await db.ref('sessions/'+sessionCode+'/responses').push({name,run:vals.run,protect:vals.protect,develop:vals.develop,improve:vals.improve,timestamp:Date.now()});
+    document.getElementById('thanks-code').textContent=sessionCode;showScreen('screen-thanks');
+  }catch(err){btn.disabled=false;btn.textContent='Submit My Calendar';alert('Submission failed — check your connection and try again.');}
+}
+async function submitHotTake(){
+  const text=document.getElementById('ht-text').value.trim();
   if(!text)return;
-  goals.push({name:name||`Leader ${goals.length+1}`,text});
-  document.getElementById('goal-name-input').value='';document.getElementById('goal-text-input').value='';
-  document.getElementById('goal-add-form').classList.remove('show');document.getElementById('goal-add-confirm').style.display='none';document.getElementById('goal-add-btn').style.display='';
-  renderGoals();
-}
-document.getElementById('goal-text-input').addEventListener('keydown',e=>{if(e.key==='Enter')confirmGoal();});
-document.getElementById('goal-name-input').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('goal-text-input').focus();});
-function removeGoal(i){goals.splice(i,1);renderGoals();}
-function renderGoals(){
-  const list=document.getElementById('goal-list');
-  if(!goals.length){list.innerHTML='<div class="goals-empty">No goals added yet</div>';return;}
-  list.innerHTML=goals.map((g,i)=>`<div class="goal-item"><div class="goal-name">${g.name}</div><div class="goal-text">${g.text}</div><button class="goal-del" onclick="removeGoal(${i})">✕</button></div>`).join('');
-}
-renderGoals();
-function syncGoalsRef(){
-  const box=document.getElementById('goals-ref-box');
-  if(!goals.length){box.style.display='none';return;}
-  box.style.display='block';
-  document.getElementById('goals-ref-content').innerHTML=goals.map(g=>`<div style="margin-bottom:3px"><strong>${g.name}:</strong> ${g.text}</div>`).join('');
-}
-
-let sessionCode='',fbListener=null,fbParticipants=[],manualParticipants=[],currentShareUrl='';
-function genCode(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='WV';for(let i=0;i<2;i++)s+=c[Math.floor(Math.random()*c.length)];return s;}
-function initSession(){
-  sessionCode=genCode();
-  document.getElementById('sbox-code').textContent=sessionCode;
-  if(fbListener){db.ref('sessions/'+sessionCode+'/responses').off('value',fbListener);fbListener=null;}
-  fbParticipants=[];
-  fbListener=db.ref('sessions/'+sessionCode+'/responses').on('value',snap=>{
-    fbParticipants=[];
-    if(snap.exists())snap.forEach(c=>{const v=c.val();fbParticipants.push({id:c.key,name:v.name,run:v.run||0,protect:v.protect||0,develop:v.develop||0,improve:v.improve||0});});
-    renderAuditList();renderChart();
-  });
-  const existing=document.getElementById('sbox-url').value.trim();
-  if(existing)updateQR();
-}
-function newSession(){if(confirm('Start a new session? Current submissions will no longer display.')){manualParticipants=[];initSession();}}
-initSession();
-
-function updateQR(){
-  const base=document.getElementById('sbox-url').value.trim();
-  const area=document.getElementById('qr-area');
-  if(!base){area.style.display='none';return;}
-  const url=base.replace(/\/+$/,'')+'/participant.html?session='+sessionCode;
-  currentShareUrl=url;
-  document.getElementById('qr-share-url').textContent=url;
-  area.style.display='block';
-  const el=document.getElementById('qr-code-el');el.innerHTML='';
-  new QRCode(el,{text:url,width:120,height:120,colorDark:'#032254',colorLight:'#f4f6fb'});
-}
-function copyShareUrl(){
-  if(!currentShareUrl)return;
-  navigator.clipboard.writeText(currentShareUrl).then(()=>{const b=document.querySelector('.copy-btn');b.textContent='Copied!';setTimeout(()=>b.textContent='Copy Link',2000);});
-}
-
-function showAuditForm(){document.getElementById('audit-add-form').classList.add('show');document.getElementById('audit-add-btn').style.display='none';document.getElementById('audit-new-name').focus();}
-function confirmManualAdd(){
-  const name=document.getElementById('audit-new-name').value.trim()||`Leader ${manualParticipants.length+1}`;
-  const g=goals.find(g=>g.name.toLowerCase()===name.toLowerCase());
-  manualParticipants.push({name,run:25,protect:25,develop:25,improve:25,goal:g?g.text:null});
-  document.getElementById('audit-new-name').value='';document.getElementById('audit-add-form').classList.remove('show');document.getElementById('audit-add-btn').style.display='';
-  renderAuditList();renderChart();
-}
-document.getElementById('audit-new-name').addEventListener('keydown',e=>{if(e.key==='Enter')confirmManualAdd();});
-function removeManual(i){manualParticipants.splice(i,1);renderAuditList();renderChart();}
-function updateManCat(i,cat,val){
-  manualParticipants[i][cat]=parseInt(val)||0;
-  const t=['run','protect','develop','improve'].reduce((s,k)=>s+manualParticipants[i][k],0);
-  const b=document.getElementById('pmt'+i);if(b){b.textContent='Total: '+t+'%';b.className='total-badge '+(t===100?'ok':'bad');}
-  renderChart();
-}
-
-function renderAuditList(){
-  const list=document.getElementById('audit-participant-list');
-  const all=[...fbParticipants,...manualParticipants];
-  if(!all.length){list.innerHTML='<div class="audit-empty-hint">Waiting for submissions…</div>';return;}
-  const cats=[['run','#0149cf','Business'],['protect','#ff8000','Customer'],['develop','#47c5fa','Leaders'],['improve','#032254','System']];
-  const fbHtml=fbParticipants.map(p=>`<div class="fb-row"><div class="fb-name">${p.name}</div><div class="fb-vals">${cats.map(([k,c,l])=>`<span class="fb-val-chip" style="background:${c}18;color:${c};border:1px solid ${c}30">${l} ${p[k]}%</span>`).join('')}</div></div>`).join('');
-  const manHtml=manualParticipants.map((p,i)=>{
-    const t=['run','protect','develop','improve'].reduce((s,k)=>s+p[k],0);
-    return`<div class="participant-row"><div class="p-name-row"><div><span class="p-name">${p.name}</span>${p.goal?`<span class="p-goal-tag">Goal: ${p.goal}</span>`:''}<span class="p-source-tag">Manual</span></div><button class="remove-btn" onclick="removeManual(${i})">✕</button></div><div class="cat-inputs">${[['run','Business','c1'],['protect','Customer','c2'],['develop','Leaders','c3'],['improve','System','c4']].map(([k,l,c])=>`<div class="cat-wrap ${c}"><label>${l}</label><input type="number" min="0" max="100" value="${p[k]}" oninput="updateManCat(${i},'${k}',this.value)"/></div>`).join('')}</div><div class="total-badge ${t===100?'ok':'bad'}" id="pmt${i}">Total: ${t}%</div></div>`;
-  }).join('');
-  list.innerHTML=fbHtml+manHtml;
-}
-
-const CAT_KEYS=['run','protect','develop','improve'];
-const CAT_LABELS=['Running the Business','Protecting the Customer','Developing Leaders','Improving the System'];
-const CAT_COLORS=['#0149cf','#ff8000','#47c5fa','#032254'];
-let chartInst=null;
-function renderChart(){
-  const all=[...fbParticipants,...manualParticipants];
-  const canvas=document.getElementById('auditChart');
-  const empty=document.getElementById('audit-chart-empty');
-  if(!all.length){canvas.style.display='none';empty.style.display='flex';if(chartInst){chartInst.destroy();chartInst=null;}return;}
-  empty.style.display='none';canvas.style.display='block';
-  const avg=CAT_KEYS.map(k=>Math.round(all.reduce((s,p)=>s+(p[k]||0),0)/all.length));
-  const labels=[...all.map(p=>p.name),'ROOM AVG'];
-  const datasets=CAT_KEYS.map((k,ci)=>({label:CAT_LABELS[ci],data:[...all.map(p=>p[k]||0),avg[ci]],backgroundColor:CAT_COLORS[ci],borderRadius:3,borderSkipped:false}));
-  if(chartInst){chartInst.data.labels=labels;chartInst.data.datasets=datasets;chartInst.update('active');}
-  else{chartInst=new Chart(canvas,{type:'bar',data:{labels,datasets},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.x}%`}}},scales:{x:{stacked:true,max:100,ticks:{color:'#5a6a85',font:{size:11},callback:v=>v+'%'},grid:{color:'#d4dce8'},border:{color:'#d4dce8'}},y:{stacked:true,ticks:{color:ctx=>ctx.tick.label==='ROOM AVG'?'#ff8000':'#0d1b35',font:ctx=>({size:12,weight:ctx.tick.label==='ROOM AVG'?'700':'400'})},grid:{display:false},border:{display:false}}}}});}
-  canvas.parentElement.style.minHeight=((all.length+1)*50+40)+'px';
-  if(chartInst)chartInst.resize();
+  const btn=document.getElementById('ht-submit-btn');btn.disabled=true;btn.textContent='Submitting…';
+  try{
+    await db.ref('sessions/'+sessionCode+'/hotTake').push({text,timestamp:Date.now()});
+    showScreen('screen-ht-thanks');
+  }catch(err){btn.disabled=false;btn.textContent='Submit Hot Take';alert('Submission failed — check your connection and try again.');}
 }
 </script>
 </body>
