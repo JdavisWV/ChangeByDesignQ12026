@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Calendar Audit — WorldVue</title>
+<title>Change By Design — WorldVue</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -58,12 +58,23 @@ html,body{min-height:100%;font-family:'Barlow',sans-serif;background:#032254;col
 .thanks-code{color:#47c5fa;font-weight:600}
 .primary-btn{background:#ff8000;color:#fff;border:none;border-radius:10px;padding:14px 32px;font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-top:24px;transition:opacity .2s}
 .primary-btn:active{opacity:.8}
+/* Hot Take styles */
+.ht-prompt{background:rgba(71,197,250,.08);border:1px solid rgba(71,197,250,.2);border-radius:12px;padding:20px 22px;margin-bottom:24px}
+.ht-prompt p{font-size:1rem;font-style:italic;color:#47c5fa;line-height:1.65}
+.ht-prompt .ht-label{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.4);margin-bottom:8px;font-style:normal}
+.ht-anon{font-size:.72rem;color:rgba(255,255,255,.3);font-style:italic;margin-bottom:16px;text-align:center}
+.ht-textarea{width:100%;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.14);border-radius:10px;color:#fff;font-size:1rem;padding:14px 16px;font-family:'Barlow',sans-serif;outline:none;transition:border-color .2s;resize:none;min-height:120px;line-height:1.6}
+.ht-textarea:focus{border-color:#47c5fa}
+.ht-textarea::placeholder{color:rgba(255,255,255,.28)}
+.ht-submit-btn{width:100%;background:#ff8000;color:#fff;border:none;border-radius:12px;padding:18px;font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-top:14px;transition:opacity .2s,transform .1s}
+.ht-submit-btn:active:not(:disabled){transform:scale(.98)}
+.ht-submit-btn:disabled{opacity:.3;cursor:default}
 </style>
 </head>
 <body>
 
 <div class="screen" id="screen-session">
-  <div class="wv-header"><div class="wv-logo">WorldVue</div><div class="wv-title">Calendar Audit</div></div>
+  <div class="wv-header"><div class="wv-logo">WorldVue</div><div class="wv-title">Change By Design</div></div>
   <div class="center-screen">
     <h2>Enter Session Code</h2>
     <p>Your facilitator has a session code on screen. Enter it below to join.</p>
@@ -99,11 +110,36 @@ html,body{min-height:100%;font-family:'Barlow',sans-serif;background:#032254;col
     <div class="check-circle">✓</div>
     <h2>Submitted!</h2>
     <p>Your response has been added to session <span class="thanks-code" id="thanks-code">—</span>.<br><br>Watch the chart update live on the facilitator's screen.</p>
+    <button class="primary-btn" onclick="showScreen('screen-hottake')">Continue to Hot Take →</button>
+  </div>
+</div>
+
+<div class="screen" id="screen-hottake">
+  <div class="wv-header"><div class="wv-logo">WorldVue</div><div class="wv-title">Hot Take</div></div>
+  <div class="form-scroll">
+    <div class="session-badge"><span class="sb-label">Session</span><span class="sb-code" id="ht-form-code">—</span></div>
+    <div class="ht-prompt">
+      <div class="ht-label">Your Hot Take</div>
+      <p>"The pressure pattern I know I'm responsible for is ___"</p>
+    </div>
+    <p class="ht-anon">Anonymous — your name will not appear on screen</p>
+    <label class="field-label">Complete the prompt</label>
+    <textarea class="ht-textarea" id="ht-text" placeholder="Be specific — think about your team, your decisions, your last two weeks…"></textarea>
+    <button class="ht-submit-btn" id="ht-submit-btn" onclick="submitHotTake()">Submit Hot Take</button>
+  </div>
+</div>
+
+<div class="screen" id="screen-ht-thanks">
+  <div class="wv-header"><div class="wv-logo">WorldVue</div><div class="wv-title">Hot Take</div></div>
+  <div class="thanks-body">
+    <div class="check-circle" style="border-color:#ff8000;background:rgba(255,128,0,.12)">✓</div>
+    <h2>Submitted!</h2>
+    <p>Your response is anonymous and now visible on the facilitator's screen.<br><br>Watch the conversation unfold.</p>
   </div>
 </div>
 
 <script>
-const firebaseConfig={apiKey:"AIzaSyBlEyn6Q4PXnhiO32AKF_5mmIbKUjnNMsc",authDomain:"change-by-design-q1.firebaseapp.com",databaseURL:"https://change-by-design-q1-default-rtdb.firebaseio.com",projectId:"change-by-design-q1",storageBucket:"change-by-design-q1.firebasestorage.app",messagingSenderId:"341465518012",appId:"1:341465518012:web:6a6a9a0e45ea19f9d965b9"};
+const firebaseConfig={apiKey:"AIzaSyBlEyn6Q4PXnhiO32AKF_5mmIbKUjnNMsc",authDomain:"change-by-design-q1.firebaseapp.com",databaseURL:"https://change-by-design-q1-default-rtdb.firebaseio.com",projectId:"change-by-design-q1",storageBucket:"change-by-design-q1.firebasestorage.app",messagingSenderId:"341455518012",appId:"1:341455518012:web:6a6a9a0e45ea19f9d965b9"};
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
 let sessionCode='';
@@ -112,7 +148,7 @@ function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classL
 window.addEventListener('load',()=>{const p=new URLSearchParams(window.location.search);const code=p.get('session');if(code){sessionCode=code.toUpperCase();startForm();}else showScreen('screen-session');});
 function joinSession(){const v=document.getElementById('code-input').value.trim().toUpperCase();if(!v)return;sessionCode=v;startForm();}
 document.getElementById('code-input').addEventListener('keydown',e=>{if(e.key==='Enter')joinSession();});
-function startForm(){document.getElementById('form-code').textContent=sessionCode;showScreen('screen-form');updateTotal();}
+function startForm(){document.getElementById('form-code').textContent=sessionCode;document.getElementById('ht-form-code').textContent=sessionCode;showScreen('screen-form');updateTotal();}
 function adj(cat,d){const n=vals[cat]+d;if(n<0||n>100)return;vals[cat]=n;document.getElementById('v-'+cat).textContent=n;updateTotal();}
 function updateTotal(){
   const t=Object.values(vals).reduce((a,b)=>a+b,0);
@@ -129,6 +165,15 @@ async function submitResponse(){
     await db.ref('sessions/'+sessionCode+'/responses').push({name,run:vals.run,protect:vals.protect,develop:vals.develop,improve:vals.improve,timestamp:Date.now()});
     document.getElementById('thanks-code').textContent=sessionCode;showScreen('screen-thanks');
   }catch(err){btn.disabled=false;btn.textContent='Submit My Calendar';alert('Submission failed — check your connection and try again.');}
+}
+async function submitHotTake(){
+  const text=document.getElementById('ht-text').value.trim();
+  if(!text)return;
+  const btn=document.getElementById('ht-submit-btn');btn.disabled=true;btn.textContent='Submitting…';
+  try{
+    await db.ref('sessions/'+sessionCode+'/hotTake').push({text,timestamp:Date.now()});
+    showScreen('screen-ht-thanks');
+  }catch(err){btn.disabled=false;btn.textContent='Submit Hot Take';alert('Submission failed — check your connection and try again.');}
 }
 </script>
 </body>
